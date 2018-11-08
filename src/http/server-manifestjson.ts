@@ -98,8 +98,21 @@ export function serverManifestJson(server: Server, routerPathBase64: express.Rou
                 // (req.hostname && req.hostname.indexOf("now.sh") >= 0)
                 ;
 
-            const pathBase64Str = new Buffer(reqparams.pathBase64, "base64").toString("utf8");
+            let pathBase64Str = new Buffer(reqparams.pathBase64, "base64").toString("utf8");
 
+            // Temp fix for long url
+            console.log("WHAT????", pathBase64Str);
+            if (pathBase64Str.indexOf("remote:") >= 0) {
+                server.getPublications().find((filePath) => {
+                    console.log(pathBase64Str, filePath);
+                    if (filePath.indexOf(pathBase64Str.replace("remote:", "")) >= 0) {
+                        pathBase64Str = filePath;
+                        console.log("OK");
+                        return true;
+                    }
+                    return false;
+                });
+            }
             // const fileName = path.basename(pathBase64Str);
             // const ext = path.extname(fileName).toLowerCase();
 

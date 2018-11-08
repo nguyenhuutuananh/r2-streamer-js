@@ -82,9 +82,10 @@ export function serverPub(server: Server, topRouter: express.Application): expre
             return;
         }
 
+        // Temp fix for long url
         const found = server.getPublications().find((filePath) => {
             const filePathBase64 = new Buffer(filePath).toString("base64");
-            return value === filePathBase64;
+            return value === filePathBase64 || filePath.indexOf(valueStr.replace("remote:", "")) >= 0;
         });
 
         if (found) {

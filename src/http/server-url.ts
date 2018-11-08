@@ -13,6 +13,8 @@ import { IRequestPayloadExtension, _urlEncoded } from "./request-ext";
 import { Server } from "./server";
 import { trailingSlashRedirect } from "./server-trailing-slash-redirect";
 
+import * as path from "path";
+
 const debug = debug_("r2:streamer#http/server-url");
 
 // tslint:disable-next-line:variable-name
@@ -24,6 +26,38 @@ export function serverRemotePub(_server: Server, topRouter: express.Application)
 
     routerUrl.use(trailingSlashRedirect);
 
+    // Temp fix for long url
+    routerUrl.get("/add", (_req: express.Request, res: express.Response) => {
+        if (_req.query.url) {
+            const fileName = _req.query.url;
+            const ext = path.extname(fileName.split("?").shift() || fileName).toLowerCase();
+            if (/\.epub[3]?$/.test(ext)) {
+                console.log(fileName);
+                _server.addPublications([fileName]);
+                const redirect = _req.originalUrl.substr(0,
+                    _req.originalUrl.indexOf(serverRemotePub_PATH + "/"))
+                    + "/url/add/?message=Add+!!!";
+                debug(`REDIRECT: ${_req.originalUrl} ==> ${redirect}`);
+                return res.redirect(301, redirect);
+            }
+        }
+        const html = `
+<html>
+    <head>
+        <title>Add publication by URL</title>
+    </head>
+    <body>
+        <h1>Publication URL</h1>
+        <form method="GET" action="">
+            <input type="text" name="url" id="url" size="80">
+            <input type="submit" value="Add!"> <br />
+            ${_req.query.message || ""}
+        </form>
+    </body>
+</html>
+        `;
+        return res.status(200).send(html);
+    });
     routerUrl.get("/", (_req: express.Request, res: express.Response) => {
 
         let html = "<html><head>";

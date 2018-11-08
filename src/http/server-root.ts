@@ -26,6 +26,7 @@ import { serverVersion_PATH } from "./server-version";
 
 export function serverRoot(server: Server, topRouter: express.Application) {
 
+    // Temp fix for long url
     topRouter.get("/", (_req: express.Request, res: express.Response) => {
 
         const html =
@@ -35,10 +36,20 @@ export function serverRoot(server: Server, topRouter: express.Application) {
 <body>
 <h1>Local Publications</h1>
 ${server.getPublications().map((pub) => {
-                const filePathBase64 = new Buffer(pub).toString("base64");
-                return `\
+                const fileName = path.basename(pub).split("?").shift();
+                if (!isHTTP(pub)) {
+                    const filePathBase64 = new Buffer(pub).toString("base64");
+                    return `\
 <h2><a href=".${serverPub_PATH}/${encodeURIComponent_RFC3986(filePathBase64)}">\
-${isHTTP(pub) ? pub : path.basename(pub)}\
+${path.basename(pub)}\
+</a></h2>
+`;
+                }
+                const httpFilePathBase64 = new Buffer("remote:" +
+                    fileName || "").toString("base64");
+                return `\
+<h2><a href=".${serverPub_PATH}/${encodeURIComponent_RFC3986(httpFilePathBase64)}">\
+${"Remote from CDN: " + fileName}\
 </a></h2>
 `;
             }).join("")}\
