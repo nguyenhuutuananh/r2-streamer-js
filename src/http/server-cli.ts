@@ -85,6 +85,14 @@ if (stats.isDirectory() && (isAnEPUB !== EPUBis.LocalExploded)) {
             .find();
         const server = new Server();
         server.preventRobots();
+        // tslint:disable-next-line:max-line-length
+        server.addPublications([
+            "http://dev.mochicomi.net/uploads/BOUKENROKU_C2.epub?Expires=1541746397" +
+                "&Signature=Cjps1KV87EUH7eGKIN5~9w9BiX~aDpYOL44~GjFwEkH0~crbSIhY6fU9xi6LAKwU-rl8vW4DvhSOQE" +
+                "1E1siueTODaWKfoJiwNEChUVesXyqgmcgqNua1kaGm0xKS2AZX7jeQENj7xJIhyvwz6aqG4vCmgt2T5H2sCSpRUFc" +
+                "2P5ldw7r4U5zmKJVIMJJT3QZL3VaEw4r1NeAs02neEXGD-OCveJ-RkW0useXq3KIdDS0HmWDYA03lHNdGhuqh2rEE" +
+                "WVioQdowxfNBapA-kPHhVbVMX5hc~ndGveR5MlseTA-Uims-JmIjIKL-tHLMASqZ9uvOaRS0Xo00on2CT-m0lw__" +
+                "&Key-Pair-Id=APKAIH4VJWW5KSKEYSYA"]);
         server.addPublications(files);
         const url = await server.start(0, false);
         debug(url);
