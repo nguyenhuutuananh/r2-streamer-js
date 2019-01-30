@@ -73,6 +73,26 @@ export function serverAssets(server: Server, routerPathBase64: express.Router) {
 
             // dumpPublication(publication);
 
+            if (reqparams.lcpPass64 && !server.disableDecryption) {
+                // reqparams.lcpPass64 is already decoded!
+                // const decoded = decodeURIComponent(reqparams.lcpPass64);
+                const lcpPass = new Buffer(reqparams.lcpPass64, "base64").toString("utf8");
+                if (publication.LCP) {
+                    try {
+                        await publication.LCP.tryUserKeys([lcpPass]); // hex
+                    } catch (err) {
+                        // a bit brutal, but that's just for testing anyway (not real-world usage pattern)
+                        publication.LCP.ContentKey = undefined;
+                        debug(err);
+                        const errMsg = "FAIL publication.LCP.tryUserKeys(): " + err;
+                        debug(errMsg);
+                        res.status(500).send("<html><body><p>Internal Server Error</p><p>"
+                            + errMsg + "</p></body></html>");
+                        return;
+                    }
+                }
+            }
+
             const zipInternal = publication.findFromInternal("zip");
             if (!zipInternal) {
                 const err = "No publication zip!";
